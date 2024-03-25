@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { ProducerService } from 'src/queues/producer.service';
+import { ProducerService } from '../queues/producer.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.schema';
@@ -38,8 +38,8 @@ export class UserService {
       };
       await this.producerService.addToEmailQueue(JSON.stringify(emailData));
 
-      const savedUser = await newUser.save();
-      return savedUser;
+      await newUser.save();
+      return newUser;
     } catch (e) {
       throw new Error(`Failed to create user: ${e.message}`);
     }
