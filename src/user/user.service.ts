@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
+import { EmailService } from 'src/email/email.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.schema';
@@ -11,6 +12,7 @@ import * as crypto from 'crypto';
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
+    private emailService: EmailService,
     private readonly httpService: HttpService,
   ) {}
 
@@ -26,6 +28,15 @@ export class UserService {
         id: userData.id,
         email: userData.email,
       });
+
+      const emailData = {
+        email: userData.email,
+        subject: 'Welcome to Our Community',
+        html: `<p>Hello ${userData.first_name},</p>
+        <p>Welcome to our community! Your account is now active.</p>
+        <p>Enjoy your time with us!</p>`,
+      };
+      await this.emailService.sendEmail(emailData)
 
       const savedUser = await newUser.save();
       return savedUser;
